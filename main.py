@@ -1,16 +1,24 @@
-# prblemen "Aero light", "Aero light RE"
+# prblemen "Aero light", "Aero light RE" - opgelostL we kiezen het langste
+# Email groeps met hetzelfde subject achter elkaar
 
 objs = list()
 email_gr = list()
 
-products = ["Reno Fast", "renofast","Renosporen", "Reno Dek", "Renodek","Kolibrie", "Aero","Aero PD", "Aero Light", "Aero light RE","Aero Riet", "Aero de Luxe","Aero Verjonging","Reno Aero PD","Aero Comfort"]
+products = ["Reno Fast", "renofast", "Renosporen", "Reno Dek", "Renodek", "Kolibrie", "Aero", "Aero PD", "Aero Light",
+            "Aero light RE", "Aero Riet", "Aero de Luxe", "Aero Verjonging", "Reno Aero PD", "Aero Comfort"]
 
-bouwfysica = ["Rc ","Rc-","damp","damprem", "densiteit", "warmte","brand","brandklasse","rook","geluid","akoestisch"]
-bouwmechanica = ["overspanning", "gording", "afwerking","dakraamkozijn","ondersteuning","Dakhelling (in graden)","Muurplaat", "tussengording", "nokgording","lengte","dakbeschot"]
-montage = ["verwerkingsvoorschrift", "monteren", "hijs","bevestig"]
-certificatie = ["KOMO", "certificaat","attest"]
+bouwfysica = ["Rc ", "Rc-", ". rc waarde", "damp", "damprem", "densiteit", "warmte", "brand", "brandklasse", "rook",
+              "geluid",
+              "akoestisch"]
+bouwmechanica = ["overspanning", "gording", "afwerking", "dakraamkozijn", "ondersteuning", "Dakhelling (in graden)",
+                 "Muurplaat", "tussengording", "nokgording", "lengte", "dakbeschot"]
+montage = ["verwerkingsvoorschrift", "verwerking", "monteren", "hijs", "bevestig", "bevestiging"]
+certificatie = ["KOMO", "certificaat", "attest"]
 nestkast = ["nestkast"]
-pasdak = ["pasdak"]
+pasdak = ["pasdak", "Quick Scan"]
+
+topics_all = [bouwfysica, bouwmechanica, montage, certificatie, nestkast, pasdak]
+topics_all_txt = ["bouwfysica", "bouwmechanica", "montage", "certificatie", "nestkast", "pasdak"]
 
 
 def process_pdf():
@@ -20,7 +28,7 @@ def process_pdf():
     L = []
 
     # Using readlines()
-    file1 = open('month1.txt', 'r', encoding="utf-8")
+    file1 = open('stuk.txt', 'r', encoding="utf-8")
     Lines = file1.readlines()
 
     count = 0
@@ -32,7 +40,7 @@ def process_pdf():
         i += 1
 
         if "From:" in line.strip() or "Van:" in line.strip():
-            objs.append(Person("", "", "", "", "", "", "" ,"", "" ,""))
+            objs.append(Person("", "", "", "", "", "", "", "", "", ""))
             no_obj_created = False
 
             objs[-1].van = line.strip().split(" ", 1)[1]
@@ -48,11 +56,14 @@ def process_pdf():
         elif "Subject:" in line.strip() or "Onderwerp:" in line.strip():
             inp = line.strip().split(" ", 1)[1]
 
-            rem_ch = ["FW:", "RE:" ,"Re:" ,"Fwd:", "NT:"]
+            if "Attachments:" not in Lines[i + 1]:
+                if "Categories:" not in Lines[i + 1]:
+                    inp = inp + " " + Lines[i].strip()
+
+            rem_ch = ["FW:", "RE:", "Re:", "Fwd:", "NT:"]
 
             for rem in rem_ch:
                 inp = inp.replace(rem, "")
-
 
             objs[-1].subject = inp.strip()
 
@@ -66,7 +77,7 @@ def process_pdf():
 
 
 class Person:
-    def __init__(email_obj, van, aan, cc ,date, subject, bijlage, categories, body,topic, product):
+    def __init__(email_obj, van, aan, cc, date, subject, bijlage, categories, body, topic, product):
         email_obj.van = van
         email_obj.date = date
         email_obj.aan = aan
@@ -80,22 +91,24 @@ class Person:
 
     def myfunc(abc):
         # print(abc.subject,abc.van )
-        print("{:<50}".format(abc.subject[:50])," | ", "{:<50}".format(abc.product[:20])," | ")
+        print("{:<50}".format(abc.subject[:100]), " | ", "{:<20}".format(abc.product[:20]), " | ", abc.topic)
+
+        #print(abc.body)
 
 
 def iter_obj():
     temp = objs[0]
 
-    #merge emails in the groups
-    for i in range(1,len(objs)):
-        if objs[i-1].subject[-5:] == objs[i].subject[-5:] or objs[i-1].subject[:5] == objs[i].subject[:5]:
-            objs[i].subject = max(objs[i-1].subject, objs[i].subject , key = len)
-            objs[i].van = objs[i].van + objs[i-1].van
+    # merge emails in the groups
+    for i in range(1, len(objs)):
+        if objs[i - 1].subject[-5:] == objs[i].subject[-5:] or objs[i - 1].subject[:5] == objs[i].subject[:5]:
+            objs[i].subject = max(objs[i - 1].subject, objs[i].subject, key=len)
+            objs[i].van = objs[i].van + objs[i - 1].van
             objs[i].body = objs[i].body + objs[i - 1].body
         else:
-            email_gr.append(objs[i-1])
+            email_gr.append(objs[i - 1])
 
-    # searching for product
+    # searching for product in each email group
     for i in range(len(email_gr)):
         tmp_length = 0
         for prod in products:
@@ -103,10 +116,17 @@ def iter_obj():
                 if len(prod) > tmp_length:
                     email_gr[i].product = prod
                     tmp_length = len(prod)
+        email_gr[i].topic = {}
+        for index, item in enumerate(topics_all, start=0):  # default is zero
+            for prop in item:
+                if email_gr[i].body.lower().find(prop.lower()) != -1:
+                    # email_gr[i].topic = {1:2} #email_gr[i].topic + " " + topics_all_txt[index]
+                    if topics_all_txt[index] not in email_gr[i].topic:
+                        email_gr[i].topic.update({topics_all_txt[index]: 1})
+                    else:
+                        email_gr[i].topic[topics_all_txt[index]] += 1
 
         email_gr[i].myfunc()
-
-
 
 
 # Press the green button in the gutter to run the script.
