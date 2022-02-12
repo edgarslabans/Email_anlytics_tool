@@ -3,7 +3,7 @@
 objs = list()
 email_gr = list()
 
-products = ["Reno fast", "renofast","Renosporen", "Reno dek", "Renodek","Kolibrie", "Aero","Aero PD", "Aero Light", "Aero light RE","Unidek Aero Riet", "Aero de Luxe","Aero verjonging","Reno Aero PD","Aero Comfort"]
+products = ["Reno Fast", "renofast","Renosporen", "Reno Dek", "Renodek","Kolibrie", "Aero","Aero PD", "Aero Light", "Aero light RE","Aero Riet", "Aero de Luxe","Aero Verjonging","Reno Aero PD","Aero Comfort"]
 
 bouwfysica = ["Rc ","Rc-","damp","damprem", "densiteit", "warmte","brand","brandklasse","rook","geluid","akoestisch"]
 bouwmechanica = ["overspanning", "gording", "afwerking","dakraamkozijn","ondersteuning","Dakhelling (in graden)","Muurplaat", "tussengording", "nokgording","lengte","dakbeschot"]
@@ -80,7 +80,7 @@ class Person:
 
     def myfunc(abc):
         # print(abc.subject,abc.van )
-        print(abc.subject," === ", abc.product)
+        print("{:<50}".format(abc.subject[:50])," | ", "{:<50}".format(abc.product[:20])," | ")
 
 
 def iter_obj():
@@ -95,7 +95,7 @@ def iter_obj():
         else:
             email_gr.append(objs[i-1])
 
-    # sorting
+    # searching for product
     for i in range(len(email_gr)):
         tmp_length = 0
         for prod in products:
