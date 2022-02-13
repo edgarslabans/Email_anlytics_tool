@@ -95,11 +95,12 @@ class Person:
     def myfunc(abc):
         # print(abc.subject,abc.van )
 
+        #process "From"
         van_1st_clean = abc.van.split(";", 1)[0]
         van_1st_clean = van_1st_clean.split("<", 1)[0]
         van_1st_clean = van_1st_clean.split("[", 1)[0]
 
-
+        # process date
         date_clean = abc.date.split(":", 1)[0][:-2]
         rem_ch = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag","zaterdag","zondag"]
         for rem in rem_ch:
@@ -108,7 +109,7 @@ class Person:
 
         print("{:<20}".format(van_1st_clean[:20]), " | ", "{:<15}".format(date_clean[:15]), " | ",
               "{:<50}".format(abc.subject[:50]), " | ","{:<15}".format(abc.product[:15]), " | ",
-              "{:<10}".format(abc.categories[:10]), " | ", abc.topic)
+              "{:<10}".format(abc.categories[:10]), " | ", "{:<15}".format(abc.general_topic[:15])  , " | ",  abc.topic)
 
         # print(abc.body)
 
@@ -124,28 +125,39 @@ def iter_obj():
             objs[i].body = objs[i-1].body + objs[i].body
             objs[i].date =  objs[i - 1].date +";" + objs[i].date
             objs[i].categories = objs[i - 1].categories  + objs[i].categories
-
-
         else:
             email_gr.append(objs[i - 1])
 
-    # searching for product in each email group
+    # iterating each element in the email_group
     for i in range(len(email_gr)):
+        # looking for a product label in the body of email
         tmp_length = 0
         for prod in products:
             if email_gr[i].body.lower().find(prod.lower()) != -1:
                 if len(prod) > tmp_length:
                     email_gr[i].product = prod
                     tmp_length = len(prod)
+
+        #looking for a topic
         email_gr[i].topic = {}
         for index, item in enumerate(topics_all, start=0):  # default is zero
             for prop in item:
+                # adding topic name to the dictionary if a keyword found
                 if email_gr[i].body.lower().find(prop.lower()) != -1:
-                    # email_gr[i].topic = {1:2} #email_gr[i].topic + " " + topics_all_txt[index]
                     if topics_all_txt[index] not in email_gr[i].topic:
                         email_gr[i].topic.update({topics_all_txt[index]: 1})
                     else:
                         email_gr[i].topic[topics_all_txt[index]] += 1
+
+        # postprocessing topics to find a general topic
+        max_key = max(email_gr[i].topic, key=email_gr[i].topic.get)
+        if "nestkast" in email_gr[i].topic:
+            email_gr[i].general_topic = "nestkast"
+        elif "pasdak" in email_gr[i].topic:
+            email_gr[i].general_topic = "pasdak"
+        else:
+            email_gr[i].general_topic = max_key
+
         email_gr[i].myfunc()
 
 # Press the green button in the gutter to run the script.
@@ -153,8 +165,9 @@ if __name__ == '__main__':
     process_pdf()
     print("{:<20}".format("Van"[:20]), " | ", "{:<15}".format("Date"[:15]), " | ",
           "{:<50}".format("Onderwerp"[:50]), " | ", "{:<15}".format("Product"[:15]), " | ",
-          "{:<10}".format("Color code"[:10]), " | ", "Category")
-    print ("-------------------------------------------------------------------------------------------------------------------------------------")
+          "{:<10}".format("Color code"[:10]), " | ", "{:<15}".format("Main cat"[:15]), " | ", "Category")
+    print ("----------------------------------------------------------------------------------------------------------"
+           "----------------------------------------------------------------------------------------------------------")
     iter_obj()
     print ("Len", len(email_gr))
 
