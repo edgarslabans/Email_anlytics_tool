@@ -4,6 +4,7 @@
 objs = list()
 email_gr = list()
 
+
 products = ["Reno Fast", "renofast", "Renosporen", "Reno Dek", "Renodek", "Kolibrie", "Aero", "Aero PD", "Aero Light",
             "Aero light RE", "Aero Riet", "Aero de Luxe", "Aero Verjonging", "Reno Aero PD", "Aero Comfort"]
 
@@ -150,6 +151,10 @@ def iter_obj():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     process_pdf()
+    print("{:<20}".format("Van"[:20]), " | ", "{:<15}".format("Date"[:15]), " | ",
+          "{:<50}".format("Onderwerp"[:50]), " | ", "{:<15}".format("Product"[:15]), " | ",
+          "{:<10}".format("Color code"[:10]), " | ", "Category")
+    print ("-------------------------------------------------------------------------------------------------------------------------------------")
     iter_obj()
     print ("Len", len(email_gr))
 
