@@ -10,9 +10,10 @@ products = ["Reno Fast", "renofast", "Renosporen", "Reno Dek", "Renodek", "Kolib
 bouwfysica = ["Rc ", "Rc-", ". rc waarde", "damp", "damprem", "densiteit", "warmte", "brand", "brandklasse", "rook",
               "geluid",
               "akoestisch"]
-bouwmechanica = ["overspanning", "gording", "afwerking", "dakraamkozijn", "ondersteuning", "Dakhelling (in graden)",
+bouwmechanica = ["overspanning", "constructeur", "gording", "afwerking", "dakraamkozijn", "ondersteuning",
+                 "Dakhelling (in graden)",
                  "Muurplaat", "tussengording", "nokgording", "lengte", "dakbeschot"]
-montage = ["verwerkingsvoorschrift", "verwerking", "monteren", "hijs", "bevestig", "bevestiging"]
+montage = ["verwerkingsvoorschrift", "verwerking", "monteren", "hijs", "bevestig", "bevestiging","montage"]
 certificatie = ["KOMO", "certificaat", "attest"]
 nestkast = ["nestkast"]
 pasdak = ["pasdak", "Quick Scan"]
@@ -28,7 +29,7 @@ def process_pdf():
     L = []
 
     # Using readlines()
-    file1 = open('stuk.txt', 'r', encoding="utf-8")
+    file1 = open('month1.txt', 'r', encoding="utf-8")
     Lines = file1.readlines()
 
     count = 0
@@ -40,7 +41,7 @@ def process_pdf():
         i += 1
 
         if "From:" in line.strip() or "Van:" in line.strip():
-            objs.append(Person("", "", "", "", "", "", "", "", "", ""))
+            objs.append(Person("", "", "", "", "", "", "", "", "", "", ""))
             no_obj_created = False
 
             objs[-1].van = line.strip().split(" ", 1)[1]
@@ -56,8 +57,8 @@ def process_pdf():
         elif "Subject:" in line.strip() or "Onderwerp:" in line.strip():
             inp = line.strip().split(" ", 1)[1]
 
-            if "Attachments:" not in Lines[i + 1]:
-                if "Categories:" not in Lines[i + 1]:
+            if "Attachments:" not in Lines[i]:
+                if "Categories:" not in Lines[i]:
                     inp = inp + " " + Lines[i].strip()
 
             rem_ch = ["FW:", "RE:", "Re:", "Fwd:", "NT:"]
@@ -73,11 +74,11 @@ def process_pdf():
         elif "Categories:" in line.strip():
             objs[-1].categories = line.strip().split(" ", 1)[1]
         elif no_obj_created == False:
-            objs[-1].body = objs[-1].body + line.strip()
+            objs[-1].body = objs[-1].subject + " " + objs[-1].bijlage + " " + objs[-1].body + line.strip()
 
 
 class Person:
-    def __init__(email_obj, van, aan, cc, date, subject, bijlage, categories, body, topic, product):
+    def __init__(email_obj, van, aan, cc, date, subject, bijlage, categories, body, topic,general_topic, product):
         email_obj.van = van
         email_obj.date = date
         email_obj.aan = aan
@@ -87,13 +88,28 @@ class Person:
         email_obj.categories = categories
         email_obj.body = body
         email_obj.topic = topic
+        email_obj.general_topic = general_topic
         email_obj.product = product
 
     def myfunc(abc):
         # print(abc.subject,abc.van )
-        print("{:<50}".format(abc.subject[:100]), " | ", "{:<20}".format(abc.product[:20]), " | ", abc.topic)
 
-        #print(abc.body)
+        van_1st_clean = abc.van.split(";", 1)[0]
+        van_1st_clean = van_1st_clean.split("<", 1)[0]
+        van_1st_clean = van_1st_clean.split("[", 1)[0]
+
+
+        date_clean = abc.date.split(":", 1)[0][:-2]
+        rem_ch = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag","zaterdag","zondag"]
+        for rem in rem_ch:
+            date_clean = date_clean.replace(rem, "").strip()
+
+
+        print("{:<20}".format(van_1st_clean[:20]), " | ", "{:<15}".format(date_clean[:15]), " | ",
+              "{:<50}".format(abc.subject[:50]), " | ","{:<15}".format(abc.product[:15]), " | ",
+              "{:<10}".format(abc.categories[:10]), " | ", abc.topic)
+
+        # print(abc.body)
 
 
 def iter_obj():
@@ -101,10 +117,14 @@ def iter_obj():
 
     # merge emails in the groups
     for i in range(1, len(objs)):
-        if objs[i - 1].subject[-5:] == objs[i].subject[-5:] or objs[i - 1].subject[:5] == objs[i].subject[:5]:
+        if objs[i - 1].subject[-15:] == objs[i].subject[-15:] or objs[i - 1].subject[:15] == objs[i].subject[:15]:
             objs[i].subject = max(objs[i - 1].subject, objs[i].subject, key=len)
-            objs[i].van = objs[i].van + objs[i - 1].van
-            objs[i].body = objs[i].body + objs[i - 1].body
+            objs[i].van = objs[i-1].van +";" + objs[i].van
+            objs[i].body = objs[i-1].body + objs[i].body
+            objs[i].date =  objs[i - 1].date +";" + objs[i].date
+            objs[i].categories = objs[i - 1].categories  + objs[i].categories
+
+
         else:
             email_gr.append(objs[i - 1])
 
@@ -125,13 +145,12 @@ def iter_obj():
                         email_gr[i].topic.update({topics_all_txt[index]: 1})
                     else:
                         email_gr[i].topic[topics_all_txt[index]] += 1
-
         email_gr[i].myfunc()
-
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     process_pdf()
     iter_obj()
+    print ("Len", len(email_gr))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
