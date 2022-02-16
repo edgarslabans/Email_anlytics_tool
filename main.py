@@ -19,6 +19,13 @@ certificatie = ["KOMO", "certificaat", "attest"]
 nestkast = ["nestkast"]
 pasdak = ["pasdak", "Quick Scan"]
 
+overstek = []
+brand = []
+TEK_SIPS = []
+
+detailering  =[]
+
+
 topics_all = [bouwfysica, bouwmechanica, montage, certificatie, nestkast, pasdak]
 topics_all_txt = ["bouwfysica", "bouwmechanica", "montage", "certificatie", "nestkast", "pasdak"]
 
