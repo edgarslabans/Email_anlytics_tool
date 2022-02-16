@@ -8,6 +8,9 @@ email_gr = list()
 products = ["Reno Fast", "renofast", "Renosporen", "Reno Dek", "Renodek", "Kolibrie", "Aero", "Aero PD", "Aero Light",
             "Aero light RE", "Aero Riet", "Aero de Luxe", "Aero Verjonging", "Reno Aero PD", "Aero Comfort"]
 
+dakbedekking = ["metaaldak", "velsdak","ongeventileerde","houten dakbedekking"] # update nodig hier
+
+
 bouwfysica = ["Rc ", "Rc-", ". rc waarde", "damp", "damprem", "densiteit", "warmte", "brand", "brandklasse", "rook",
               "geluid",
               "akoestisch"]
@@ -19,6 +22,10 @@ certificatie = ["KOMO", "certificaat", "attest"]
 nestkast = ["nestkast"]
 pasdak = ["pasdak", "Quick Scan"]
 
+montage = []
+detailiering = []
+overspanningsberekening =[]
+andere_constructiev = []
 overstek = []
 brand = []
 TEK_SIPS = []
